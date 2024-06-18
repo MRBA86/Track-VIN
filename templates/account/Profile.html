@@ -1,23 +1,17 @@
-{% extends 'basic.html' %}
+{% extends 'base-profile.html' %}
 {% load static %}
 
 {% block content %}
-
-<div class="container text-center">
+  <div class="container text-center">
     <div class="row align-items-center">
-
       <div class="col">
-        <p> Profile </p>
-        </div>
-        <div class="col">
-        </div>
-      <div class="col">
-        <br>
-            <br>
+        <h2>{{ user.email }}</h2>
       </div>
-  
+      <div class="col"></div>
+      <div class="col">
+        <br />
+        <br />
+      </div>
     </div>
   </div>
-
-    
 {% endblock %}

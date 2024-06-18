@@ -1,5 +1,3 @@
-from typing import Any
-from django.http import HttpRequest
 from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import render , redirect
 from django.views import View
@@ -7,6 +5,7 @@ from .forms import UserRegistrationForm , UserLoginForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate , login , logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 
@@ -17,7 +16,7 @@ class UserRegisterView(View):
 
     def dispatch(self, request, *args, **kwargs) :
         if request.user.is_authenticated:
-            return redirect('account:user_profile')
+            return redirect('account:user_profile', user_id=request.user.pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get(self,request):
@@ -40,7 +39,7 @@ class UserLoginView(View):
 
     def dispatch(self, request, *args, **kwargs) :
         if request.user.is_authenticated:
-            return redirect('account:user_profile')
+            return redirect('account:user_profile', user_id=request.user.pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
@@ -55,11 +54,11 @@ class UserLoginView(View):
             if user is not None :
                 login(request, user)
                 messages.success(request, 'ورود با موفقیت انجام شد', 'success')
-                return redirect('account:user_profile')
+                return redirect('account:user_profile', user_id=user.pk)
             messages.error(request,'ورود نا موفق', 'warning')
         return render(request, self.template_name , {'form' : form})
 
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin,View):
     def get(self, request):
         logout(request)
         messages.success(request, 'خروج کاربر با موفقیت انجام شد', 'success')
@@ -67,6 +66,7 @@ class UserLogoutView(View):
 
             
 
-class UserProfileView(View):
-    def get(self, request):
-        return render(request, 'account/Profile.html')         
+class UserProfileView(LoginRequiredMixin,View):
+    def get(self, request, user_id):
+        user = User.objects.get(pk=user_id)
+        return render(request, 'account/Profile.html', {'user':user})         
